@@ -46,16 +46,42 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const responseListener = useRef<EventSubscription>();
     // TODO: const lastNotificationResponse = Notifications.useLastNotificationResponse();
 
+    const handleNotificationTap = async () => {
+        try {
+            const result = await fetch('http://192.168.1.122:3000/notifyseconduser', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // body: JSON.stringify({
+                //   notificationId: response.notification.request.identifier,
+                //   action: response.actionIdentifier,
+                //   data: response.notification.request.content.data,
+                //   timestamp: new Date().toISOString(),
+                // }),
+                body: JSON.stringify({
+                    acknowledged: true
+                }),
+            });
+
+            console.log("NOTIFIED successful", result)
+
+            return result
+        } catch (error) {
+            console.error("POST Error:", error);
+        }
+    };
+
     useEffect(() => {
         registerForPushNotificationsAsync().then(
             (token) => setExpoPushToken(token),
             (error) => setError(error)
         );
 
-        // called whenever a notification is received while the app is running
+        // called whenever a notification is received while the app is running/in the foreground
         notificationListener.current =
             Notifications.addNotificationReceivedListener((notification) => {
-                console.log("🔔 Notification Received: ", JSON.stringify(notification, null, 2));
+                console.log("🔔 Notification Received test: ", JSON.stringify(notification, null, 2));
                 setNotification(notification);
             });
 
@@ -63,10 +89,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         responseListener.current =
             Notifications.addNotificationResponseReceivedListener((response) => {
                 console.log(
-                    "🔔 Notification Response: ",
+                    "🔔 Notification Response some: user interacts with a notification ",
                     JSON.stringify(response, null, 2)
                 );
-                // Handle the notification response here
+                handleNotificationTap()
+                console.log('after handle notification')
             });
 
         return () => {

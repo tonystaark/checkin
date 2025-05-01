@@ -23,7 +23,8 @@ export default function HomeScreen() {
           Your push token:
         </ThemedText>
         <ThemedText>{expoPushToken}</ThemedText>
-        <ThemedText type="subtitle">Latest notification:</ThemedText>
+        <ThemedText>{expoPushToken}</ThemedText>
+        <ThemedText type="subtitle">Latest notification haha:</ThemedText>
         <ThemedText>{notification?.request.content.title}</ThemedText>
         <ThemedText>
           {JSON.stringify(notification?.request.content.data, null, 2)}

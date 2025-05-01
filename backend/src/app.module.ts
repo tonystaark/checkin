@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppController, PushNotificationController } from './app.controller';
-import { AppService, PushNotificationService } from './app.service';
+import { ScheduleModule } from '@nestjs/schedule';
+import { AppController, PushNotificationController, NotifySecondUserController } from './app.controller';
+import { AppService, TasksService, PushNotificationService, NotifySecondUserService, AcknowledgementFromFirstUserService } from './app.service';
 
 @Module({
-  imports: [],
+  imports: [ScheduleModule.forRoot()],
   exports: [],
-  controllers: [AppController, PushNotificationController],
-  providers: [AppService, PushNotificationService],
+  controllers: [AppController, PushNotificationController, NotifySecondUserController],
+  providers: [AppService, PushNotificationService, TasksService, NotifySecondUserService, AcknowledgementFromFirstUserService],
 })
 export class AppModule { }
