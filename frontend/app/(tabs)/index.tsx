@@ -2,7 +2,6 @@ import { Platform, SafeAreaView, StatusBar } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useNotification } from "@/context/NotificationContext";
-
 export default function HomeScreen() {
   const { notification, expoPushToken, error } = useNotification();
 

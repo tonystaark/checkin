@@ -2,11 +2,13 @@ import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
+import { UsersModule } from './users/users.module';
 import { AppController, PushNotificationController, NotifySecondUserController } from './app.controller';
 import { AppService, TasksService, PushNotificationService, NotifySecondUserService, AcknowledgementFromFirstUserService } from './app.service';
 
 @Module({
   imports: [
+    UsersModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
     MongooseModule.forRoot(
