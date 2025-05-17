@@ -51,7 +51,7 @@ export class TasksService {
   private readonly logger = new Logger(TasksService.name);
   constructor(private readonly pushService: PushNotificationService) { }
   // Runs every 30 seconds
-  @Cron('*/30 * * * * *') // You can use CronExpression.EVERY_30_SECONDS too
+  @Cron('0 */5 * * * *') // You can use CronExpression.EVERY_30_SECONDS too
   handleCron() {
     this.logger.debug('⏰ Cron job running every 10 seconds...');
     // Your custom logic here

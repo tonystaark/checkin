@@ -8,11 +8,12 @@ import { User } from './users.entity';
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
 
-  async insertUser(firstName: string, lastName: string, mobileNumber: string) {
+  async insertUser(firstName: string, lastName: string, mobileNumber: string, pushToken: string) {
     const newUser = new this.userModel({
       firstName,
       lastName,
-      mobileNumber
+      mobileNumber,
+      pushToken
     });
     const result = await newUser.save();
     return result.id as string;
@@ -24,21 +25,34 @@ export class UsersService {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      mobileNumber: user.mobileNumber
+      mobileNumber: user.mobileNumber,
+      pushToken: user.pushToken
     }));
   }
 
-  async getSingleUser(userId: string) {
+  async getSingleUserByPushToken(pushToken: string) {
+    const user = await this.findUserByPushToken(pushToken);
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      mobileNumber: user.mobileNumber,
+      pushToken: user.pushToken
+    };
+  }
+
+  async getSingleUserById(userId: string) {
     const user = await this.findUser(userId);
     return {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      mobileNumber: user.mobileNumber
+      mobileNumber: user.mobileNumber,
+      pushToken: user.pushToken
     };
   }
 
-  async updateUser(userId: string, firstName: string, lastName: string, mobileNumber: string) {
+  async updateUser(userId: string, firstName: string, lastName: string, mobileNumber: string, pushToken: string) {
     const updatedUser = await this.findUser(userId);
     if (firstName) {
       updatedUser.firstName = firstName;
@@ -48,6 +62,9 @@ export class UsersService {
     }
     if (mobileNumber) {
       updatedUser.mobileNumber = mobileNumber;
+    }
+    if (pushToken) {
+      updatedUser.pushToken = pushToken;
     }
     const savedUser = await updatedUser.save();
     return savedUser;
@@ -64,6 +81,20 @@ export class UsersService {
     let user;
     try {
       user = await this.userModel.findById(id).exec();
+    } catch (error) {
+      throw new NotFoundException('Could not find user.');
+    }
+    if (!user) {
+      throw new NotFoundException('Could not find user.');
+    }
+    return user;
+  }
+
+  private async findUserByPushToken(pushToken: string): Promise<User> {
+    let user;
+    try {
+      user = await this.userModel.findOne({ pushToken }).exec();
+      console.log('get user', user)
     } catch (error) {
       throw new NotFoundException('Could not find user.');
     }

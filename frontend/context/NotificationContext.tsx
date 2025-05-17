@@ -81,7 +81,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         // called whenever a notification is received while the app is running/in the foreground
         notificationListener.current =
             Notifications.addNotificationReceivedListener((notification) => {
-                console.log("🔔 Notification Received test: ", JSON.stringify(notification, null, 2));
+                // console.log("🔔 Notification Received test: ", JSON.stringify(notification, null, 2));
                 setNotification(notification);
             });
 
