@@ -10,10 +10,18 @@ import * as Notifications from "expo-notifications";
 import { EventSubscription } from "expo-modules-core";
 import { registerForPushNotificationsAsync } from "../utils/registerForPushNotifcationsAsync";
 
+interface UserFound {
+    firstName: string;
+    lastName: string;
+    mobileNumber: string;
+    pushToken: string;
+}
 interface NotificationContextType {
     expoPushToken: string | null;
     notification: Notifications.Notification | null;
     error: Error | null;
+    isExistingUser: boolean;
+    userFound: UserFound
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -40,11 +48,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
     const [notification, setNotification] =
         useState<Notifications.Notification | null>(null);
-    const [error, setError] = useState<Error | null>(null);
+    const [error, setError] = useState<any>(null);
 
     const notificationListener = useRef<EventSubscription>();
     const responseListener = useRef<EventSubscription>();
     // TODO: const lastNotificationResponse = Notifications.useLastNotificationResponse();
+    const [isExistingUser, setIsExistingUser] = useState(false);
+    const [userFound, setUserFound] = useState({ firstName: '', lastName: '', mobileNumber: '', pushToken: '' })
 
     const handleNotificationTap = async () => {
         try {
@@ -64,20 +74,52 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
                 }),
             });
 
-            console.log("NOTIFIED successful", result)
-
             return result
         } catch (error) {
             console.error("POST Error:", error);
         }
     };
 
-    useEffect(() => {
-        registerForPushNotificationsAsync().then(
-            (token) => setExpoPushToken(token),
-            (error) => setError(error)
-        );
+    const checkIsExistingUser = async (token: string) => {
+        try {
+            const result = await fetch(`http://192.168.1.122:3000/users/by-push-token/${token}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
 
+            const data = await result.json();
+            if (data.pushToken) {
+                setUserFound({
+                    firstName: data.firstName,
+                    lastName: data.lastName,
+                    mobileNumber: data.mobileNumber,
+                    pushToken: data.pushToken
+                })
+                setIsExistingUser(true)
+            } else {
+                setIsExistingUser(false)
+            }
+            return data;
+        } catch (error) {
+            setIsExistingUser(false)
+            console.log(error)
+        }
+    }
+
+    const register = async () => {
+        try {
+            const token = await registerForPushNotificationsAsync();
+            setExpoPushToken(token)
+            await checkIsExistingUser(token)
+        } catch (error) {
+            setError(error)
+        }
+    }
+
+    useEffect(() => {
+        register()
         // called whenever a notification is received while the app is running/in the foreground
         notificationListener.current =
             Notifications.addNotificationReceivedListener((notification) => {
@@ -118,7 +160,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     return (
         <NotificationContext.Provider
-            value={{ expoPushToken, notification, error }}
+            value={{ expoPushToken, notification, error, isExistingUser, userFound }}
         >
             {children}
         </NotificationContext.Provider>

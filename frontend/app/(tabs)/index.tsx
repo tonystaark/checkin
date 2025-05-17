@@ -2,46 +2,14 @@ import { Platform, SafeAreaView, StatusBar, View, Text, TextInput, Button, Alert
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useNotification } from "@/context/NotificationContext";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 export default function HomeScreen() {
-  const { notification, expoPushToken, error } = useNotification();
-  const [isExistingUser, setIsExistingUser] = useState(false);
+  const { notification, expoPushToken, error, isExistingUser, userFound } = useNotification();
   const [firstName, setfirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [mobileNumber, setmobileNumber] = useState('');
-  const [userFound, setUserFound] = useState({ firstName: '', lastName: '', mobileNumber: '', pushToken: '' })
   if (error) {
     return <ThemedText>Error: {error.message}</ThemedText>;
-  }
-
-  const checkIsExistingUser = async () => {
-    console.log('expoPushToken', expoPushToken)
-    try {
-      const result = await fetch(`http://192.168.1.122:3000/users/by-push-token/${expoPushToken}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await result.json();
-
-      if (data.pushToken) {
-        console.log('data222', data)
-        setUserFound({
-          firstName: data.firstName,
-          lastName: data.lastName,
-          mobileNumber: data.mobileNumber,
-          pushToken: data.pushToken
-        })
-        return setIsExistingUser(true)
-      }
-      setIsExistingUser(false)
-      return data;
-    } catch (error) {
-      setIsExistingUser(false)
-      console.log(error)
-    }
   }
 
   const registerUser = async () => {
@@ -81,7 +49,7 @@ export default function HomeScreen() {
       return;
     }
     registerUser()
-    checkIsExistingUser()
+    // checkIsExistingUser()
 
   };
 
@@ -102,11 +70,6 @@ export default function HomeScreen() {
       height: 40
     }
   });
-
-  useEffect(() => {
-    console.log('somethingg')
-    checkIsExistingUser()
-  }, [])
 
   return (
     <ThemedView
