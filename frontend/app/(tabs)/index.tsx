@@ -3,6 +3,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useNotification } from "@/context/NotificationContext";
 import { useState, useEffect } from "react";
+import AddFollowersListScreen from "@/components/AddFollowersListScreen";
 export default function HomeScreen() {
   const { notification, expoPushToken, error, isExistingUser, userFound } = useNotification();
   const [firstName, setfirstName] = useState('');
@@ -20,7 +21,7 @@ export default function HomeScreen() {
       pushToken: expoPushToken
     }))
     try {
-      const result = await fetch(`http://192.168.1.122:3000/users`, {
+      const result = await fetch(`http://192.168.215.72:3000/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -91,6 +92,7 @@ export default function HomeScreen() {
             <ThemedText>
               Hi {userFound.firstName}
             </ThemedText>
+            <AddFollowersListScreen />
           </> :
           <>
             <ThemedText type="subtitle">Register:</ThemedText>

@@ -5,6 +5,11 @@ export const UserSchema = new mongoose.Schema({
     lastName: { type: String, required: true },
     mobileNumber: { type: String, required: true },
     pushToken: { type: String, required: true },
+    followers: [
+        {
+            mobileNumber: { type: String }
+        }
+    ]
 });
 
 export interface User extends mongoose.Document {
@@ -13,4 +18,5 @@ export interface User extends mongoose.Document {
     lastName: string;
     mobileNumber: string;
     pushToken: string;
+    followers?: { mobileNumber: string }[];
 }

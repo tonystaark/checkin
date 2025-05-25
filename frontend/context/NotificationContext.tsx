@@ -11,6 +11,7 @@ import { EventSubscription } from "expo-modules-core";
 import { registerForPushNotificationsAsync } from "../utils/registerForPushNotifcationsAsync";
 
 interface UserFound {
+    id: string;
     firstName: string;
     lastName: string;
     mobileNumber: string;
@@ -54,11 +55,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const responseListener = useRef<EventSubscription>();
     // TODO: const lastNotificationResponse = Notifications.useLastNotificationResponse();
     const [isExistingUser, setIsExistingUser] = useState(false);
-    const [userFound, setUserFound] = useState({ firstName: '', lastName: '', mobileNumber: '', pushToken: '' })
+    const [userFound, setUserFound] = useState({ id: '', firstName: '', lastName: '', mobileNumber: '', pushToken: '' })
 
     const handleNotificationTap = async () => {
         try {
-            const result = await fetch('http://192.168.1.122:3000/notifyseconduser', {
+            const result = await fetch('http://192.168.215.72:3000/notifyseconduser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -82,7 +83,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const checkIsExistingUser = async (token: string) => {
         try {
-            const result = await fetch(`http://192.168.1.122:3000/users/by-push-token/${token}`, {
+            const result = await fetch(`http://192.168.215.72:3000/users/by-push-token/${token}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -90,8 +91,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             });
 
             const data = await result.json();
+            console.log('result', data)
             if (data.pushToken) {
+                console.log('data222', data)
                 setUserFound({
+                    id: data.id,
                     firstName: data.firstName,
                     lastName: data.lastName,
                     mobileNumber: data.mobileNumber,
@@ -110,7 +114,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const register = async () => {
         try {
-            const token = await registerForPushNotificationsAsync();
+            const token = await registerForPushNotificationsAsync()
+            console.log('token')
             setExpoPushToken(token)
             await checkIsExistingUser(token)
         } catch (error) {

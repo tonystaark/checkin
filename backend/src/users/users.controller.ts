@@ -52,14 +52,16 @@ export class UsersController {
     @Body('firstName') userFirstName: string,
     @Body('lastName') userLastName: string,
     @Body('mobileNumber') mobileNumber: string,
-    @Body('pushToken') pushToken: string
+    @Body('pushToken') pushToken: string,
+    @Body('followers') followers?: { mobileNumber: string }[]
   ) {
     const updatedUser = await this.usersService.updateUser(
       userId,
       userFirstName,
       userLastName,
       mobileNumber,
-      pushToken
+      pushToken,
+      followers
     );
     return { message: 'User updated successfully', updatedUser };
   }

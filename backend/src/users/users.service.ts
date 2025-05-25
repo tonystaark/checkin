@@ -52,7 +52,7 @@ export class UsersService {
     };
   }
 
-  async updateUser(userId: string, firstName: string, lastName: string, mobileNumber: string, pushToken: string) {
+  async updateUser(userId: string, firstName: string, lastName: string, mobileNumber: string, pushToken: string, followers?: { mobileNumber: string }[]) {
     const updatedUser = await this.findUser(userId);
     if (firstName) {
       updatedUser.firstName = firstName;
@@ -65,6 +65,9 @@ export class UsersService {
     }
     if (pushToken) {
       updatedUser.pushToken = pushToken;
+    }
+    if (followers && followers.length > 0) {
+      updatedUser.followers = followers;
     }
     const savedUser = await updatedUser.save();
     return savedUser;
@@ -94,7 +97,6 @@ export class UsersService {
     let user;
     try {
       user = await this.userModel.findOne({ pushToken }).exec();
-      console.log('get user', user)
     } catch (error) {
       throw new NotFoundException('Could not find user.');
     }
