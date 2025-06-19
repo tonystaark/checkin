@@ -1,17 +1,18 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 
-import { User } from './users.entity';
+import { User, Follower } from './users.entity';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
 
-  async insertUser(firstName: string, lastName: string, mobileNumber: string, pushToken: string) {
+  async insertUser(firstName: string, lastName: string, countryCode: string, mobileNumber: string, pushToken: string) {
     const newUser = new this.userModel({
       firstName,
       lastName,
+      countryCode,
       mobileNumber,
       pushToken
     });
@@ -25,6 +26,7 @@ export class UsersService {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
+      countryCode: user.countryCode,
       mobileNumber: user.mobileNumber,
       pushToken: user.pushToken
     }));
@@ -36,6 +38,19 @@ export class UsersService {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
+      countryCode: user.countryCode,
+      mobileNumber: user.mobileNumber,
+      pushToken: user.pushToken
+    };
+  }
+
+  async getSingleUserByMobileNumber(countryCode: string, mobileNumber: string) {
+    const user = await this.findUserByMobileNumber(countryCode, mobileNumber);
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      countryCode: user.countryCode,
       mobileNumber: user.mobileNumber,
       pushToken: user.pushToken
     };
@@ -47,30 +62,37 @@ export class UsersService {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
+      countryCode: user.countryCode,
       mobileNumber: user.mobileNumber,
       pushToken: user.pushToken
     };
   }
 
-  async updateUser(userId: string, firstName: string, lastName: string, mobileNumber: string, pushToken: string, followers?: { mobileNumber: string }[]) {
-    const updatedUser = await this.findUser(userId);
-    if (firstName) {
-      updatedUser.firstName = firstName;
+  async followUser(userId: string, targetUserId: string): Promise<void> {
+    if (userId === targetUserId) {
+      throw new Error('User cannot follow themselves.');
     }
-    if (lastName) {
-      updatedUser.lastName = lastName;
+
+    const [user, targetUser] = await Promise.all([
+      this.findUser(userId),
+      this.findUser(targetUserId)
+    ]);
+
+    if (!user || !targetUser) {
+      throw new Error('User or target user not found.');
     }
-    if (mobileNumber) {
-      updatedUser.mobileNumber = mobileNumber;
+
+    // Add to followees if not already following
+    if (!user.followees?.includes(targetUser._id)) {
+      user.followees!.push(targetUser._id);
     }
-    if (pushToken) {
-      updatedUser.pushToken = pushToken;
+
+    // Add to followers if not already followed
+    if (!targetUser.followers?.includes(user._id)) {
+      targetUser.followers!.push(user._id);
     }
-    if (followers && followers.length > 0) {
-      updatedUser.followers = followers;
-    }
-    const savedUser = await updatedUser.save();
-    return savedUser;
+
+    await Promise.all([user.save(), targetUser.save()]);
   }
 
   async deleteUser(userId: string) {
@@ -97,6 +119,19 @@ export class UsersService {
     let user;
     try {
       user = await this.userModel.findOne({ pushToken }).exec();
+    } catch (error) {
+      throw new NotFoundException('Could not find user.');
+    }
+    if (!user) {
+      throw new NotFoundException('Could not find user.');
+    }
+    return user;
+  }
+
+  private async findUserByMobileNumber(countryCode: string, mobileNumber: string): Promise<User> {
+    let user;
+    try {
+      user = await this.userModel.findOne({ countryCode, mobileNumber }).exec();
     } catch (error) {
       throw new NotFoundException('Could not find user.');
     }

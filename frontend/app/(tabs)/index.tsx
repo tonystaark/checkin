@@ -4,24 +4,30 @@ import { ThemedView } from "@/components/ThemedView";
 import { useNotification } from "@/context/NotificationContext";
 import { useState, useEffect } from "react";
 import AddFollowersListScreen from "@/components/AddFollowersListScreen";
+
+import PhoneInput, {
+  isValidPhoneNumber, ICountry
+} from 'react-native-international-phone-number';
+
 export default function HomeScreen() {
   const { notification, expoPushToken, error, isExistingUser, userFound } = useNotification();
   const [firstName, setfirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [mobileNumber, setmobileNumber] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [userRegistered, setUserRegistered] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState<ICountry | null | undefined>(null);
   if (error) {
     return <ThemedText>Error: {error.message}</ThemedText>;
   }
 
+  const handleInputValue = (phoneNumber: string) => setMobileNumber(phoneNumber);
+
+  const handleSelectedCountry = (country: ICountry | null | undefined) => setSelectedCountry(country);
+
   const registerUser = async () => {
-    console.log('JSON', JSON.stringify({
-      firstName,
-      lastName,
-      mobileNumber,
-      pushToken: expoPushToken
-    }))
+
     try {
-      const result = await fetch(`http://192.168.215.72:3000/users`, {
+      const result = await fetch(`http://192.168.0.229:3000/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,6 +35,7 @@ export default function HomeScreen() {
         body: JSON.stringify({
           firstName,
           lastName,
+          countryCode: selectedCountry!.callingCode,
           mobileNumber,
           pushToken: expoPushToken
         }),
@@ -36,15 +43,33 @@ export default function HomeScreen() {
       Alert.alert('Form Submitted', `Name: ${firstName} ${lastName}\nPhone: ${mobileNumber}`);
 
       const data = await result.json();
+      setUserRegistered(true)
       console.log('result', data)
-
-      Alert.alert('Form Submitted', `Name: ${firstName} ${lastName}\nPhone: ${mobileNumber}`);
     } catch (error) {
       console.log(error)
     }
   }
 
+  useEffect(() => {
+    if (userRegistered) {
+      console.log('User has registered!');
+    }
+  }, [userRegistered]);
+
+
   const handleSubmit = () => {
+    console.log('JSON', JSON.stringify({
+      firstName,
+      lastName,
+      mobileNumber,
+      countryCode: selectedCountry!.callingCode,
+      pushToken: expoPushToken
+    }))
+    if (!isValidPhoneNumber(mobileNumber, selectedCountry)) {
+      Alert.alert('Error', 'Phone Number is not in correct format!');
+      return;
+    }
+
     if (!firstName || !lastName || !mobileNumber) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
@@ -53,6 +78,7 @@ export default function HomeScreen() {
     // checkIsExistingUser()
 
   };
+
 
   const styles = StyleSheet.create({
     container: {
@@ -85,14 +111,15 @@ export default function HomeScreen() {
           Your push token:
         </ThemedText>
         <ThemedText>{expoPushToken}</ThemedText>
-        {isExistingUser ?
+        {userRegistered ? <ThemedText>Registered!</ThemedText> : <ThemedText>Please register yourself</ThemedText>}
+        {isExistingUser || userRegistered ?
           <>
             <ThemedText type="subtitle">Latest notification:</ThemedText>
             <ThemedText>{notification?.request.content.title}</ThemedText>
             <ThemedText>
               Hi {userFound.firstName}
             </ThemedText>
-            <AddFollowersListScreen />
+            <AddFollowersListScreen user={userFound} />
           </> :
           <>
             <ThemedText type="subtitle">Register:</ThemedText>
@@ -114,14 +141,31 @@ export default function HomeScreen() {
               />
 
               <Text style={styles.label}>Phone Number</Text>
-              <TextInput
-                style={styles.input}
-                value={mobileNumber}
-                onChangeText={setmobileNumber}
-                placeholder="Enter your phone number"
-                keyboardType="phone-pad"
-              />
 
+              <View>
+                <PhoneInput
+                  value={mobileNumber}
+                  onChangePhoneNumber={handleInputValue}
+                  selectedCountry={selectedCountry}
+                  onChangeSelectedCountry={handleSelectedCountry}
+                />
+                <View style={{ marginTop: 10 }}>
+                  <Text>
+                    Country:{' '}
+                    {`${selectedCountry?.name?.en} (${selectedCountry?.cca2})`}
+                  </Text>
+                  <Text>
+                    Phone Number:{' '}
+                    {`${selectedCountry?.callingCode} ${mobileNumber}`}
+                  </Text>
+                  <Text>
+                    isValid:{' '}
+                    {isValidPhoneNumber(mobileNumber, selectedCountry)
+                      ? 'true'
+                      : 'false'}
+                  </Text>
+                </View>
+              </View>
               <Button title="Submit" onPress={handleSubmit} />
             </View>
           </>

@@ -9,6 +9,8 @@ import {
 } from '@nestjs/common';
 
 import { UsersService } from './users.service';
+import { User } from './users.entity';
+import { Types } from 'mongoose';
 
 @Controller('users')
 export class UsersController {
@@ -20,10 +22,12 @@ export class UsersController {
     @Body('lastName') userLastName: string,
     @Body('mobileNumber') mobileNumber: string,
     @Body('pushToken') pushToken: string,
+    @Body('countryCode') countryCode: string,
   ) {
     const generatedId = await this.usersService.insertUser(
       userFirstName,
       userLastName,
+      countryCode,
       mobileNumber,
       pushToken
     );
@@ -46,22 +50,24 @@ export class UsersController {
     return this.usersService.getSingleUserByPushToken(pushToken);
   }
 
-  @Patch(':id')
-  async updateUser(
-    @Param('id') userId: string,
-    @Body('firstName') userFirstName: string,
-    @Body('lastName') userLastName: string,
-    @Body('mobileNumber') mobileNumber: string,
-    @Body('pushToken') pushToken: string,
-    @Body('followers') followers?: { mobileNumber: string }[]
+  @Get('by-mobile-number/:countryCode/:mobileNumber')
+  getUserByMobileNumber(
+    @Param('countryCode') countryCode: string,
+    @Param('mobileNumber') mobileNumber: string
   ) {
-    const updatedUser = await this.usersService.updateUser(
+    console.log(countryCode, mobileNumber)
+
+    return this.usersService.getSingleUserByMobileNumber(countryCode, mobileNumber);
+  }
+
+  @Patch(':userId/:targetUserId')
+  async followUser(
+    @Param('userId') userId: string,
+    @Param('targetUserId') targetUserId: string
+  ) {
+    const updatedUser = await this.usersService.followUser(
       userId,
-      userFirstName,
-      userLastName,
-      mobileNumber,
-      pushToken,
-      followers
+      targetUserId
     );
     return { message: 'User updated successfully', updatedUser };
   }

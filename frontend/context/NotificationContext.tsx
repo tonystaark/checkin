@@ -9,20 +9,13 @@ import React, {
 import * as Notifications from "expo-notifications";
 import { EventSubscription } from "expo-modules-core";
 import { registerForPushNotificationsAsync } from "../utils/registerForPushNotifcationsAsync";
-
-interface UserFound {
-    id: string;
-    firstName: string;
-    lastName: string;
-    mobileNumber: string;
-    pushToken: string;
-}
+import { User } from "../types/index"
 interface NotificationContextType {
     expoPushToken: string | null;
     notification: Notifications.Notification | null;
     error: Error | null;
     isExistingUser: boolean;
-    userFound: UserFound
+    userFound: User
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(
@@ -55,11 +48,11 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const responseListener = useRef<EventSubscription>();
     // TODO: const lastNotificationResponse = Notifications.useLastNotificationResponse();
     const [isExistingUser, setIsExistingUser] = useState(false);
-    const [userFound, setUserFound] = useState({ id: '', firstName: '', lastName: '', mobileNumber: '', pushToken: '' })
+    const [userFound, setUserFound] = useState({ id: '', firstName: '', lastName: '', countryCode: '', mobileNumber: '', pushToken: '' })
 
     const handleNotificationTap = async () => {
         try {
-            const result = await fetch('http://192.168.215.72:3000/notifyseconduser', {
+            const result = await fetch('http://192.168.215.25:3000/notifyseconduser', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -83,7 +76,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const checkIsExistingUser = async (token: string) => {
         try {
-            const result = await fetch(`http://192.168.215.72:3000/users/by-push-token/${token}`, {
+            const result = await fetch(`http://192.168.0.229:3000/users/by-push-token/${token}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -91,13 +84,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             });
 
             const data = await result.json();
-            console.log('result', data)
+            console.log('checkIsExistingUserresult', data)
             if (data.pushToken) {
-                console.log('data222', data)
                 setUserFound({
                     id: data.id,
                     firstName: data.firstName,
                     lastName: data.lastName,
+                    countryCode: data.countryCode,
                     mobileNumber: data.mobileNumber,
                     pushToken: data.pushToken
                 })

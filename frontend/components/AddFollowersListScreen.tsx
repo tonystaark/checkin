@@ -8,65 +8,96 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
+import FollowRow from './FollowRow';
+import PhoneInput, {
+  isValidPhoneNumber, ICountry
+} from 'react-native-international-phone-number';
+import { User } from "../types/index"
+import { useNotification } from "@/context/NotificationContext";
 
-interface User {
-  id: string;
-  name: string;
-  mobileNumber: string;
-}
-
-export default function AddFollowersListScreen() {
-  const [name, setName] = useState('');
+export default function AddFollowersListScreen({ user }: User) {
   const [mobileNumber, setMobileNumber] = useState('');
-  const [users, setUsers] = useState<User[]>([]);
+  const [followersFound, setFollowersFound] = useState<User>({});
+  const [selectedCountry, setSelectedCountry] = useState<ICountry | null | undefined>(null);
+  const { userFound } = useNotification();
 
-  const handleAddUser = () => {
-    if (!name || !mobileNumber) {
+  const handleInputValue = (phoneNumber: string) => setMobileNumber(phoneNumber.replace(/\s+/g, ''));
+  const handleSelectedCountry = (country: ICountry | null | undefined) => setSelectedCountry(country);
+
+  const handleFindUser = async () => {
+    if (!mobileNumber) {
       Alert.alert('Validation', 'Please enter both name and mobile number');
       return;
     }
 
-    const newUser: User = {
-      id: Date.now().toString(),
-      name,
-      mobileNumber,
-    };
+    try {
+      const result = await fetch(`http://192.168.0.229:3000/users/by-mobile-number/${selectedCountry?.callingCode}/${mobileNumber.replace(/\s+/g, '')}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await result.json();
+      setFollowersFound(data)
+      console.log('followerfound', data)
+    }
 
-    setUsers(prevUsers => [...prevUsers, newUser]);
-    setName('');
-    setMobileNumber('');
-  };
+    catch (error) {
+      console.log(error)
+    }
+  }
+
+  const onFollow = async () => {
+    try {
+      const result = await fetch(`http://192.168.0.229:3000/users/${userFound.id}/${followersFound.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+      const data = await result.json();
+      console.log('addedFollower', data)
+    }
+
+    catch (error) {
+      console.log(error)
+    }
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add User</Text>
-      <TextInput
-        placeholder="Name"
-        style={styles.input}
-        value={name}
-        onChangeText={setName}
-      />
+      <Text style={styles.title}>Find People to Follow</Text>
 
-      <TextInput
-        placeholder="Mobile Number"
-        style={styles.input}
+      <PhoneInput
         value={mobileNumber}
-        keyboardType="phone-pad"
-        onChangeText={setMobileNumber}
+        onChangePhoneNumber={handleInputValue}
+        selectedCountry={selectedCountry}
+        onChangeSelectedCountry={handleSelectedCountry}
       />
+      <View style={{ marginTop: 10 }}>
+        <Text>
+          Country:{' '}
+          {`${selectedCountry?.name?.en} (${selectedCountry?.cca2})`}
+        </Text>
+        <Text>
+          Phone Number:{' '}
+          {`${selectedCountry?.callingCode} ${mobileNumber}`}
+        </Text>
+        <Text>
+          isValid:{' '}
+          {isValidPhoneNumber(mobileNumber, selectedCountry)
+            ? 'true'
+            : 'false'}
+        </Text>
+      </View>
+      <Button title="Find User" onPress={handleFindUser} />
 
-      <Button title="Add User" onPress={handleAddUser} />
-
-      <Text style={styles.subtitle}>User List</Text>
-      <FlatList
-        data={users}
-        keyExtractor={item => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.userItem}>
-            <Text>{item.name} - {item.mobileNumber}</Text>
-          </View>
-        )}
-      />
+      {followersFound.id &&
+        <>
+          <Text style={styles.subtitle}>Followee List</Text>
+          <FollowRow name={followersFound.firstName} onFollow={onFollow} />
+        </>
+      }
     </View>
   );
 }
