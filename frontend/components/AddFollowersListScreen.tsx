@@ -92,10 +92,10 @@ export default function AddFollowersListScreen({ user }: User) {
       </View>
       <Button title="Find User" onPress={handleFindUser} />
 
-      {followersFound.id &&
+      {followersFound &&
         <>
           <Text style={styles.subtitle}>Followee List</Text>
-          <FollowRow name={followersFound.firstName} onFollow={onFollow} />
+          <FollowRow followerFound={followersFound} userFound={userFound} onFollow={onFollow} />
         </>
       }
     </View>

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Expo, ExpoPushMessage, ExpoPushTicket } from 'expo-server-sdk';
 import { Cron, CronExpression } from '@nestjs/schedule';
-
+import { UsersService } from './users/users.service';
 @Injectable()
 export class AppService {
   getHello(): string {
@@ -11,8 +11,10 @@ export class AppService {
 
 @Injectable()
 export class PushNotificationService {
+
   private readonly expo = new Expo();
   private readonly logger = new Logger(PushNotificationService.name);
+
 
   async sendPushNotification(expoPushToken: string, title: string, body: string) {
     if (!Expo.isExpoPushToken(expoPushToken)) {
@@ -49,16 +51,24 @@ export class PushNotificationService {
 @Injectable()
 export class TasksService {
   private readonly logger = new Logger(TasksService.name);
-  constructor(private readonly pushService: PushNotificationService) { }
+  constructor(
+    private readonly pushService: PushNotificationService,
+    private usersService: UsersService
+  ) { }
+
   // Runs every 30 seconds
   @Cron('0 */5 * * * *') // You can use CronExpression.EVERY_30_SECONDS too
-  handleCron() {
+  async handleCron() {
     this.logger.debug('⏰ Cron job running every 10 seconds...');
     // Your custom logic here
     const token = "ExponentPushToken[DxqWu5I-4i5bg5r2Rrc69L]"
     const title = "CRON from local computer"
     const message = "CRON:This is a test notification 2"
-    this.pushService.sendPushNotification(token, title, message);
+    const usersToFireNotifcations = await this.usersService.findUsersToFireNotification();
+    await Promise.all(
+      usersToFireNotifcations.map((user) => this.pushService.sendPushNotification(user.pushToken, title, message))
+    );
+
   }
 }
 

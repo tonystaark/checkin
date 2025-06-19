@@ -3,6 +3,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
+import { UsersService } from './users/users.service';
 import { AppController, PushNotificationController, NotifySecondUserController } from './app.controller';
 import { AppService, TasksService, PushNotificationService, NotifySecondUserService, AcknowledgementFromFirstUserService } from './app.service';
 

@@ -1,18 +1,20 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet } from 'react-native';
+import { User } from "../types/index"
 
 interface FollowRow {
-    name: string;
+    followerFound: User;
+    userFound: User;
     onFollow: () => void
 }
 
-const FollowRow = ({ name, onFollow }: FollowRow) => {
+const FollowRow = ({ followerFound, userFound, onFollow }: FollowRow) => {
+    const checkUserAlreadyFollowed = () => followerFound.followers?.includes(userFound.id)
+    const isAlreadyFollowed = checkUserAlreadyFollowed() ? true : false
     return (
         <View style={styles.row}>
-            <Text style={styles.name}>{name}</Text>
-            <TouchableOpacity style={styles.button} onPress={onFollow}>
-                <Text style={styles.buttonText}>Follow</Text>
-            </TouchableOpacity>
+            <Text style={styles.name}>{followerFound.firstName}</Text>
+            <Button title={isAlreadyFollowed ? "followed" : "follow"} onPress={onFollow} disabled={isAlreadyFollowed} />
         </View>
     );
 };
