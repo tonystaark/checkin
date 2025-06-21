@@ -4,6 +4,7 @@ import { Model, Types } from 'mongoose';
 
 import { User, Follower } from './users.entity';
 
+
 @Injectable()
 export class UsersService {
   constructor(@InjectModel('User') private readonly userModel: Model<User>) { }
@@ -77,9 +78,10 @@ export class UsersService {
   }
 
   async followUser(userId: string, targetUserId: string): Promise<void> {
-    if (userId === targetUserId) {
-      throw new Error('User cannot follow themselves.');
-    }
+    console.log('check')
+    // if (userId === targetUserId) {
+    //   throw new Error('User cannot follow themselves.');
+    // }
 
     const [user, targetUser] = await Promise.all([
       this.findUser(userId),
@@ -124,6 +126,13 @@ export class UsersService {
       throw new NotFoundException('Could not find users.');
     }
   }
+
+  async updateLastNotifiedAt(userId: string, currentDate: Date) {
+    const user = await this.findUser(userId)
+    user.lastNotifiedAt = currentDate
+    await user.save();
+  }
+
 
   private async findUser(id: string): Promise<User> {
     let user;

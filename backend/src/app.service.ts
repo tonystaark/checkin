@@ -2,6 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Expo, ExpoPushMessage, ExpoPushTicket } from 'expo-server-sdk';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { UsersService } from './users/users.service';
+import { CronExpressionParser } from 'cron-parser';
+import { isAfter } from 'date-fns';
+
 @Injectable()
 export class AppService {
   getHello(): string {
@@ -57,15 +60,32 @@ export class TasksService {
   ) { }
 
   // Runs every 30 seconds
-  @Cron('0 */5 * * * *') // You can use CronExpression.EVERY_30_SECONDS too
+  @Cron('*/10 * * * * *') // You can use CronExpression.EVERY_30_SECONDS too
   async handleCron() {
-    this.logger.debug('⏰ Cron job running every 10 seconds...');
+    this.logger.debug('⏰ Cron polling job running every 5 minutes...');
     // Your custom logic here
     const title = "CRON from local computer"
     const message = "CRON:This is a test notification 2"
     const usersToFireNotifcations = await this.usersService.findUsersToFireNotification();
+    const now = new Date();
+
+    const checkUsersReadyToFire = usersToFireNotifcations.filter(user => {
+      try {
+        const interval = CronExpressionParser.parse(user.notificationCron, {
+          currentDate: user.lastNotifiedAt || new Date(0),
+        });
+        const next = interval.next().toDate();
+        return isAfter(now, next);
+      } catch (err) {
+        this.logger.warn(`Invalid cron for user ${user.id}: ${user.notificationCron}`);
+        return false;
+      }
+    });
     await Promise.all(
-      usersToFireNotifcations.map((user) => this.pushService.sendPushNotification(user.pushToken, title, message))
+      checkUsersReadyToFire.map(async (user) => {
+        await this.pushService.sendPushNotification(user.pushToken, title, message)
+        await this.usersService.updateLastNotifiedAt(user.id, now);
+      })
     );
 
   }

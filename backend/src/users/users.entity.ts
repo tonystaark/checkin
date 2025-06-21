@@ -7,7 +7,12 @@ export const UserSchema = new Schema({
     mobileNumber: { type: String, required: true },
     pushToken: { type: String, required: true },
     followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    followees: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    followees: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    // Notification Preferences
+    notificationEnabled: { type: Boolean, default: false, required: true },
+    notificationCron: { type: String, default: '0 0 */3 * * *', required: true },
+    lastNotifiedAt: { type: Date },
+    timezone: { type: String },
 });
 
 export interface User extends Document {
@@ -20,6 +25,11 @@ export interface User extends Document {
     pushToken: string;
     followers?: (Types.ObjectId)[];
     followees?: (Types.ObjectId)[];
+    // Notification Preferences
+    notificationEnabled: boolean,
+    notificationCron: string,          // e.g., "0 */3 * * *" (every 3 hours)
+    lastNotifiedAt: Date,              // When was the last notification sent
+    timezone: string,
 }
 
 export interface Follower { firstName: string, mobileNumber: string, countryCode: string }
