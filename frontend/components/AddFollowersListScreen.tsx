@@ -55,7 +55,11 @@ export default function AddFollowersListScreen({ user }: User) {
           'Content-Type': 'application/json',
         }
       });
+      if (result.status !== 200) {
+        throw new Error(`OnFollow Request failed: ${result.status}`);
+      }
       const data = await result.json();
+      console.log('Follow results', data);
       setFollowSuccess(true)
     }
 

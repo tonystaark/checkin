@@ -52,13 +52,13 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const handleNotificationTap = async () => {
         try {
-            const result = await fetch(`http://192.168.215.25:3000/notify-followers/${userFound.id}`, {
+            const result = await fetch(`http://192.168.0.229:3000/notify-followers/${userFound.id}`, {
                 method: 'POST'
             });
 
             return result
         } catch (error) {
-            console.error("POST Error:", error);
+            console.error("Failed notifying followers:", error);
         }
     };
 
