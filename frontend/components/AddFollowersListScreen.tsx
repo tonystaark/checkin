@@ -14,14 +14,14 @@ import PhoneInput, {
 } from 'react-native-international-phone-number';
 import { User } from "../types/index"
 import { useNotification } from "@/context/NotificationContext";
-
+import { removeWhitespaces } from '@/utils';
 export default function AddFollowersListScreen({ user }: User) {
   const [mobileNumber, setMobileNumber] = useState('');
   const [followersFound, setFollowersFound] = useState<User>({});
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null | undefined>(null);
   const { userFound } = useNotification();
 
-  const handleInputValue = (phoneNumber: string) => setMobileNumber(phoneNumber.replace(/\s+/g, ''));
+  const handleInputValue = (phoneNumber: string) => setMobileNumber(removeWhitespaces(phoneNumber));
   const handleSelectedCountry = (country: ICountry | null | undefined) => setSelectedCountry(country);
 
   const handleFindUser = async () => {

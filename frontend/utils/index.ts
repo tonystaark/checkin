@@ -1,0 +1,1 @@
+export const removeWhitespaces = (arg: string) => arg.replace(/\s+/g, '')

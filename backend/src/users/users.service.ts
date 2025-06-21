@@ -58,6 +58,10 @@ export class UsersService {
     };
   }
 
+  async getSingleUserByObjectId(objectId: Types.ObjectId): Promise<User> {
+    return await this.findUserByObjectId(objectId);
+  }
+
   async getSingleUserById(userId: string) {
     const user = await this.findUser(userId);
     return {
@@ -121,25 +125,23 @@ export class UsersService {
     }
   }
 
-  async findUsersFollowersToFireNotification(): Promise<User[]> {
-    let users;
-    try {
-      users = await this.userModel.find({
-        followers: { $exists: true, $not: { $size: 0 } },
-      }).exec();
-      if (users.length === 0) {
-        throw new NotFoundException('No users with followers found.');
-      }
-      return users;
-    } catch (error) {
-      throw new NotFoundException('Could not find users.');
-    }
-  }
-
   private async findUser(id: string): Promise<User> {
     let user;
     try {
       user = await this.userModel.findById(id).exec();
+    } catch (error) {
+      throw new NotFoundException('Could not find user.');
+    }
+    if (!user) {
+      throw new NotFoundException('Could not find user.');
+    }
+    return user;
+  }
+
+  private async findUserByObjectId(objectId: Types.ObjectId): Promise<User> {
+    let user;
+    try {
+      user = await this.userModel.findById(objectId).exec();
     } catch (error) {
       throw new NotFoundException('Could not find user.');
     }

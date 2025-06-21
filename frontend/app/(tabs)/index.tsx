@@ -4,7 +4,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { useNotification } from "@/context/NotificationContext";
 import { useState, useEffect } from "react";
 import AddFollowersListScreen from "@/components/AddFollowersListScreen";
-
+import { removeWhitespaces } from '@/utils';
 import PhoneInput, {
   isValidPhoneNumber, ICountry
 } from 'react-native-international-phone-number';
@@ -13,7 +13,7 @@ export default function HomeScreen() {
   const { notification, expoPushToken, error, isExistingUser, userFound } = useNotification();
   const [firstName, setfirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [mobileNumber, setMobileNumber] = useState('');
+  const [mobileNumber, setMobileNumber] = useState<string>('');
   const [userRegistered, setUserRegistered] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null | undefined>(null);
   if (error) {
@@ -36,7 +36,7 @@ export default function HomeScreen() {
           firstName,
           lastName,
           countryCode: selectedCountry!.callingCode,
-          mobileNumber,
+          mobileNumber: removeWhitespaces(mobileNumber),
           pushToken: expoPushToken
         }),
       });
