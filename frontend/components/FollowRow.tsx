@@ -5,12 +5,13 @@ import { User } from "../types/index"
 interface FollowRow {
     followerFound: User;
     userFound: User;
-    onFollow: () => void
+    onFollow: () => void;
+    followSuccess: boolean;
 }
 
-const FollowRow = ({ followerFound, userFound, onFollow }: FollowRow) => {
+const FollowRow = ({ followerFound, userFound, onFollow, followSuccess }: FollowRow) => {
     const checkUserAlreadyFollowed = () => followerFound.followers?.includes(userFound.id)
-    const isAlreadyFollowed = checkUserAlreadyFollowed() ? true : false
+    const isAlreadyFollowed = checkUserAlreadyFollowed() || followSuccess ? true : false
     return (
         <View style={styles.row}>
             <Text style={styles.name}>{followerFound.firstName}</Text>

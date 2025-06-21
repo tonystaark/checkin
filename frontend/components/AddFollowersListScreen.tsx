@@ -19,8 +19,8 @@ export default function AddFollowersListScreen({ user }: User) {
   const [mobileNumber, setMobileNumber] = useState('');
   const [followersFound, setFollowersFound] = useState<User>({});
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null | undefined>(null);
+  const [followSuccess, setFollowSuccess] = useState<boolean>(false);
   const { userFound } = useNotification();
-
   const handleInputValue = (phoneNumber: string) => setMobileNumber(removeWhitespaces(phoneNumber));
   const handleSelectedCountry = (country: ICountry | null | undefined) => setSelectedCountry(country);
 
@@ -56,7 +56,7 @@ export default function AddFollowersListScreen({ user }: User) {
         }
       });
       const data = await result.json();
-      console.log('addedFollower', data)
+      setFollowSuccess(true)
     }
 
     catch (error) {
@@ -95,7 +95,7 @@ export default function AddFollowersListScreen({ user }: User) {
       {followersFound &&
         <>
           <Text style={styles.subtitle}>Followee List</Text>
-          <FollowRow followerFound={followersFound} userFound={userFound} onFollow={onFollow} />
+          <FollowRow followerFound={followersFound} userFound={userFound} followSuccess={followSuccess} onFollow={onFollow} />
         </>
       }
     </View>
