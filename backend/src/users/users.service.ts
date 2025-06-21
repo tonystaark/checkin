@@ -66,7 +66,9 @@ export class UsersService {
       lastName: user.lastName,
       countryCode: user.countryCode,
       mobileNumber: user.mobileNumber,
-      pushToken: user.pushToken
+      pushToken: user.pushToken,
+      followers: user.followers,
+      followees: user.followees
     };
   }
 
@@ -105,6 +107,21 @@ export class UsersService {
   }
 
   async findUsersToFireNotification(): Promise<User[]> {
+    let users;
+    try {
+      users = await this.userModel.find({
+        followers: { $exists: true, $not: { $size: 0 } },
+      }).exec();
+      if (users.length === 0) {
+        throw new NotFoundException('No users with followers found.');
+      }
+      return users;
+    } catch (error) {
+      throw new NotFoundException('Could not find users.');
+    }
+  }
+
+  async findUsersFollowersToFireNotification(): Promise<User[]> {
     let users;
     try {
       users = await this.userModel.find({

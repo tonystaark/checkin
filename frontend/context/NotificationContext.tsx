@@ -52,20 +52,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const handleNotificationTap = async () => {
         try {
-            const result = await fetch('http://192.168.215.25:3000/notifyseconduser', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                // body: JSON.stringify({
-                //   notificationId: response.notification.request.identifier,
-                //   action: response.actionIdentifier,
-                //   data: response.notification.request.content.data,
-                //   timestamp: new Date().toISOString(),
-                // }),
-                body: JSON.stringify({
-                    acknowledged: true
-                }),
+            const result = await fetch(`http://192.168.215.25:3000/notify-followers/${userFound.id}`, {
+                method: 'POST'
             });
 
             return result

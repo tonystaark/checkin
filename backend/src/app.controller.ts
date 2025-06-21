@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
-import { AppService, PushNotificationService, NotifySecondUserService, AcknowledgementFromFirstUserService } from './app.service';
+import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { AppService, PushNotificationService, NotifyFollowersService, AcknowledgementFromFirstUserService } from './app.service';
 
 @Controller()
 export class AppController {
@@ -21,13 +21,13 @@ export class PushNotificationController {
   }
 }
 
-@Controller('notifyseconduser')
-export class NotifySecondUserController {
-  constructor(private readonly notifyService: NotifySecondUserService) { }
+@Controller(`notify-followers/:userId`)
+export class NotifyFollowersController {
+  constructor(private readonly notifyService: NotifyFollowersService) { }
 
   @Post()
-  async sendNotification(@Body() body: { acknowledged: boolean }) {
-    return this.notifyService.notify(body.acknowledged);
+  async sendNotification(@Param('userId') userId: string) {
+    return this.notifyService.notify(userId);
   }
 }
 // @Controller('acknowledge')

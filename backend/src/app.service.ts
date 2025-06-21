@@ -61,7 +61,6 @@ export class TasksService {
   async handleCron() {
     this.logger.debug('⏰ Cron job running every 10 seconds...');
     // Your custom logic here
-    const token = "ExponentPushToken[DxqWu5I-4i5bg5r2Rrc69L]"
     const title = "CRON from local computer"
     const message = "CRON:This is a test notification 2"
     const usersToFireNotifcations = await this.usersService.findUsersToFireNotification();
@@ -74,25 +73,29 @@ export class TasksService {
 
 
 @Injectable()
-export class NotifySecondUserService {
-  private readonly logger = new Logger(NotifySecondUserService.name);
-  constructor(private readonly pushService: PushNotificationService) { }
+export class NotifyFollowersService {
+  private readonly logger = new Logger(NotifyFollowersService.name);
+  constructor(
+    private readonly pushService: PushNotificationService,
+    private usersService: UsersService
+  ) { }
 
-  notify(acknowledged: boolean) {
-    if (acknowledged === true) {
-      this.logger.debug('⏰ User 1 notifying User 2');
-      const token = "ExponentPushToken[DxqWu5I-4i5bg5r2Rrc69L]"
-      const title = "User 1 notifying User 2"
-      const message = "User 1 notifying User 2"
-      this.pushService.sendPushNotification(token, title, message);
-    }
+  async notify(userId: string) {
+    const user = await this.usersService.getSingleUserById(userId)
+    const userFollowers = user.followers
+    this.logger.debug('⏰ User notifying Followers');
+    const title = `${user.firstName} notifying followers`
+    const message = `${user.firstName} notifying followers`
+    await Promise.all(
+      userFollowers!.map((follower) => this.pushService.sendPushNotification(follower.pushToken, title, message))
+    );
   }
 }
 
 @Injectable()
 export class AcknowledgementFromFirstUserService {
   private readonly logger = new Logger(AcknowledgementFromFirstUserService.name);
-  constructor(private readonly notifySecondUserService: NotifySecondUserService) { }
+  constructor(private readonly notifyFollowersService: NotifyFollowersService) { }
 
   acknowledge(acknowledge: boolean) {
     if (acknowledge === true) {
