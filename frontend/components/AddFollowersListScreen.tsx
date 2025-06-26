@@ -78,22 +78,7 @@ export default function AddFollowersListScreen({ user }: User) {
         selectedCountry={selectedCountry}
         onChangeSelectedCountry={handleSelectedCountry}
       />
-      <View style={{ marginTop: 10 }}>
-        <Text>
-          Country:{' '}
-          {`${selectedCountry?.name?.en} (${selectedCountry?.cca2})`}
-        </Text>
-        <Text>
-          Phone Number:{' '}
-          {`${selectedCountry?.callingCode} ${mobileNumber}`}
-        </Text>
-        <Text>
-          isValid:{' '}
-          {isValidPhoneNumber(mobileNumber, selectedCountry)
-            ? 'true'
-            : 'false'}
-        </Text>
-      </View>
+
       <Button title="Find User" onPress={handleFindUser} />
 
       {followersFound &&
