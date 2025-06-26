@@ -52,7 +52,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const handleNotificationTap = async () => {
         try {
-            const result = await fetch(`http://192.168.0.229:3000/notify-followers/${userFound.id}`, {
+            const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/notify-followers/${userFound.id}`, {
                 method: 'POST'
             });
 
@@ -64,7 +64,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const checkIsExistingUser = async (token: string) => {
         try {
-            const result = await fetch(`http://192.168.0.229:3000/users/by-push-token/${token}`, {
+            const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/by-push-token/${token}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -72,7 +72,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             });
 
             const data = await result.json();
-            console.log('checkIsExistingUserresult', data)
             if (data.pushToken) {
                 setUserFound({
                     id: data.id,
@@ -96,7 +95,6 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const register = async () => {
         try {
             const token = await registerForPushNotificationsAsync()
-            console.log('token')
             setExpoPushToken(token)
             await checkIsExistingUser(token)
         } catch (error) {

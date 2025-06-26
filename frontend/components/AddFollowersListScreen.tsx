@@ -31,7 +31,7 @@ export default function AddFollowersListScreen({ user }: User) {
     }
 
     try {
-      const result = await fetch(`http://192.168.0.229:3000/users/by-mobile-number/${selectedCountry?.callingCode}/${mobileNumber.replace(/\s+/g, '')}`, {
+      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/by-mobile-number/${selectedCountry?.callingCode}/${mobileNumber.replace(/\s+/g, '')}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +49,7 @@ export default function AddFollowersListScreen({ user }: User) {
 
   const onFollow = async () => {
     try {
-      const result = await fetch(`http://192.168.0.229:3000/users/${userFound.id}/${followersFound.id}`, {
+      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/${userFound.id}/${followersFound.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

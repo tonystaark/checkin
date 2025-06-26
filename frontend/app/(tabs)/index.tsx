@@ -27,7 +27,7 @@ export default function HomeScreen() {
   const registerUser = async () => {
 
     try {
-      const result = await fetch(`http://192.168.0.229:3000/users`, {
+      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -107,10 +107,6 @@ export default function HomeScreen() {
       }}
     >
       <SafeAreaView style={{ flex: 1 }}>
-        <ThemedText type="subtitle" style={{ color: "red" }}>
-          Your push token:
-        </ThemedText>
-        <ThemedText>{expoPushToken}</ThemedText>
         {userRegistered ? <ThemedText>Registered!</ThemedText> : <ThemedText>Please register yourself</ThemedText>}
         {isExistingUser || userRegistered ?
           <>
