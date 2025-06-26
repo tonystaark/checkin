@@ -13,6 +13,8 @@ export const UserSchema = new Schema({
     notificationCron: { type: String, default: '0 0 */3 * * *', required: true },
     lastNotifiedAt: { type: Date },
     timezone: { type: String },
+}, {
+    timestamps: true // This automatically adds createdAt and updatedAt fields
 });
 
 export interface User extends Document {
@@ -30,6 +32,9 @@ export interface User extends Document {
     notificationCron: string,          // e.g., "0 */3 * * *" (every 3 hours)
     lastNotifiedAt: Date,              // When was the last notification sent
     timezone: string,
+    // Timestamps
+    createdAt: Date,
+    updatedAt: Date,
 }
 
 export interface Follower { firstName: string, mobileNumber: string, countryCode: string }
