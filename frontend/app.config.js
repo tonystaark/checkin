@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "checkin",
     "slug": "checkin",
@@ -21,7 +21,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.tnkh.checkin",
-      "googleServicesFile": "./google-services.json"
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? "google-services.json",
     },
     "web": {
       "bundler": "metro",
@@ -53,4 +53,4 @@
     },
     "owner": "tnkh"
   }
-}
+};
