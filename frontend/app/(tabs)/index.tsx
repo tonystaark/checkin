@@ -8,6 +8,7 @@ import { removeWhitespaces } from '@/utils';
 import PhoneInput, {
   isValidPhoneNumber, ICountry
 } from 'react-native-international-phone-number';
+import { API_URL } from "@/utils";
 
 export default function HomeScreen() {
   const { notification, expoPushToken, error, isExistingUser, userFound } = useNotification();
@@ -27,7 +28,7 @@ export default function HomeScreen() {
   const registerUser = async () => {
 
     try {
-      const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users`, {
+      const result = await fetch(`${API_URL}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

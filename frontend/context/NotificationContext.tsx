@@ -10,6 +10,8 @@ import * as Notifications from "expo-notifications";
 import { EventSubscription } from "expo-modules-core";
 import { registerForPushNotificationsAsync } from "../utils/registerForPushNotifcationsAsync";
 import { User } from "../types/index"
+import { API_URL } from "../utils/index"
+
 interface NotificationContextType {
     expoPushToken: string | null;
     notification: Notifications.Notification | null;
@@ -50,9 +52,10 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const [isExistingUser, setIsExistingUser] = useState(false);
     const [userFound, setUserFound] = useState({ id: '', firstName: '', lastName: '', countryCode: '', mobileNumber: '', pushToken: '' })
 
-    const handleNotificationTap = async () => {
+    const handleNotificationTap = async (userId: string) => {
+        console.log('userUd afterr handle notifcation top', userId)
         try {
-            const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/notify-followers/${userFound.id}`, {
+            const result = await fetch(`${API_URL}/notify-followers/${userId}`, {
                 method: 'POST'
             });
 
@@ -64,7 +67,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
 
     const checkIsExistingUser = async (token: string) => {
         try {
-            const result = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users/by-push-token/${token}`, {
+            const result = await fetch(`${API_URL}/users/by-push-token/${token}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -118,7 +121,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
                     "🔔 Notification Response some: user interacts with a notification ",
                     JSON.stringify(response, null, 2)
                 );
-                handleNotificationTap()
+                handleNotificationTap(response.notification.request.content.data.userId)
                 console.log('after handle notification')
             });
 

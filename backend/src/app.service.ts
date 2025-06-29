@@ -8,7 +8,7 @@ import { isAfter } from 'date-fns';
 @Injectable()
 export class AppService {
   getHello(): string {
-    return 'Hello World Hello!';
+    return 'Hello World!';
   }
 }
 
@@ -19,7 +19,7 @@ export class PushNotificationService {
   private readonly logger = new Logger(PushNotificationService.name);
 
 
-  async sendPushNotification(expoPushToken: string, title: string, body: string) {
+  async sendPushNotification(expoPushToken: string, title: string, body: string, data: any) {
     if (!Expo.isExpoPushToken(expoPushToken)) {
       this.logger.warn(`Push token ${expoPushToken} is not a valid Expo push token`);
       return;
@@ -30,7 +30,7 @@ export class PushNotificationService {
       sound: 'default',
       title,
       body,
-      data: { withSome: 'data' },
+      data,
     }];
 
     const chunks = this.expo.chunkPushNotifications(messages);
@@ -64,8 +64,6 @@ export class TasksService {
   async handleCron() {
     this.logger.debug('⏰ Cron polling job running every 5 minutes...');
     // Your custom logic here
-    const title = "CRON from local computer"
-    const message = "CRON:This is a test notification 2"
     const usersToFireNotifcations = await this.usersService.findUsersToFireNotification();
     const now = new Date();
 
@@ -83,7 +81,12 @@ export class TasksService {
     });
     await Promise.all(
       checkUsersReadyToFire.map(async (user) => {
-        await this.pushService.sendPushNotification(user.pushToken, title, message)
+        const data = {
+          userId: user.id
+        }
+        const title = `${user.firstName} notifying followers`
+        const message = `Hello I am doing fine`
+        await this.pushService.sendPushNotification(user.pushToken, title, message, data)
         await this.usersService.updateLastNotifiedAt(user.id, now);
       })
     );
@@ -106,8 +109,11 @@ export class NotifyFollowersService {
     const followersDetailsList = await Promise.all(userFollowersWithObjectIds!.map((id) => this.usersService.getSingleUserByObjectId(id)))
     const title = `${user.firstName} notifying followers`
     const message = `${user.firstName} notifying followers`
+    const data = {
+      userId: user.id
+    }
     await Promise.all(
-      followersDetailsList!.map((follower) => this.pushService.sendPushNotification(follower.pushToken, title, message))
+      followersDetailsList!.map((follower) => this.pushService.sendPushNotification(follower.pushToken, title, message, data))
     );
     this.logger.debug('⏰ User notifying Followers');
   }

@@ -16,8 +16,8 @@ export class PushNotificationController {
   constructor(private readonly pushService: PushNotificationService) { }
 
   @Post()
-  async sendNotification(@Body() body: { token: string; title: string; message: string }) {
-    return this.pushService.sendPushNotification(body.token, body.title, body.message);
+  async sendNotification(@Body() body: { token: string; title: string; message: string, data: any }) {
+    return this.pushService.sendPushNotification(body.token, body.title, body.message, body.data);
   }
 }
 
