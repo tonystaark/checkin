@@ -104,9 +104,7 @@ export class NotifyFollowersService {
   ) { }
 
   async notify(userId: string) {
-    console.log('notify followersss')
-    const mockeduserId = '6860ba0ec8ff70853b4d1bd9'
-    const user = await this.usersService.getSingleUserById(mockeduserId)
+    const user = await this.usersService.getSingleUserById(userId)
     const userFollowersWithObjectIds = user.followers
     const followersDetailsList = await Promise.all(userFollowersWithObjectIds!.map((id) => this.usersService.getSingleUserByObjectId(id)))
     const data = {
