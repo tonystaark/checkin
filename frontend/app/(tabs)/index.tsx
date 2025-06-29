@@ -9,13 +9,14 @@ import PhoneInput, {
   isValidPhoneNumber, ICountry
 } from 'react-native-international-phone-number';
 import { API_URL } from "@/utils";
+import { User } from "@/types";
 
 export default function HomeScreen() {
   const { notification, expoPushToken, error, isExistingUser, userFound } = useNotification();
   const [firstName, setfirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [mobileNumber, setMobileNumber] = useState<string>('');
-  const [userRegistered, setUserRegistered] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);;
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null | undefined>(null);
   if (error) {
     return <ThemedText>Error: {error.message}</ThemedText>;
@@ -28,7 +29,7 @@ export default function HomeScreen() {
   const registerUser = async () => {
 
     try {
-      const result = await fetch(`${API_URL}/users`, {
+      const registerUser = await fetch(`${API_URL}/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,19 +44,26 @@ export default function HomeScreen() {
       });
       Alert.alert('Form Submitted', `Name: ${firstName} ${lastName}\nPhone: ${mobileNumber}`);
 
-      const data = await result.json();
-      setUserRegistered(true)
-      console.log('result', data)
+      const registeredUser = await registerUser.json();
+      const getLoggedInUser = await fetch(`${API_URL}/users/by-id/${registeredUser.id}`, {
+        method: 'GET'
+      });
+
+      const user = await getLoggedInUser.json();
+      console.log('loggedInUser', user);
+      setLoggedInUser(user);
+
     } catch (error) {
       console.log(error)
     }
   }
 
   useEffect(() => {
-    if (userRegistered) {
+    if (loggedInUser?.id) {
+      console.log('loggedInUser', loggedInUser)
       console.log('User has registered!');
     }
-  }, [userRegistered]);
+  }, [loggedInUser]);
 
 
   const handleSubmit = () => {
@@ -108,18 +116,17 @@ export default function HomeScreen() {
       }}
     >
       <SafeAreaView style={{ flex: 1 }}>
-        {userRegistered ? <ThemedText>Registered!</ThemedText> : <ThemedText>Please register yourself</ThemedText>}
-        {isExistingUser || userRegistered ?
+        {isExistingUser || loggedInUser ?
           <>
             <ThemedText type="subtitle">Latest notification:</ThemedText>
             <ThemedText>{notification?.request.content.title}</ThemedText>
             <ThemedText>
-              Hi {userFound.firstName}
+              Hi {loggedInUser?.firstName || userFound?.firstName}
             </ThemedText>
-            <AddFollowersListScreen user={userFound} />
+            <AddFollowersListScreen user={loggedInUser} />
           </> :
           <>
-            <ThemedText type="subtitle">Register:</ThemedText>
+            {loggedInUser ? <ThemedText type="subtitle">Registered!</ThemedText> : <ThemedText type="subtitle">Please register yourself</ThemedText>}
             <View style={styles.container}>
               <Text style={styles.label}>Given Name</Text>
               <TextInput

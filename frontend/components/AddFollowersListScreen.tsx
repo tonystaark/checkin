@@ -17,9 +17,9 @@ import { useNotification } from "@/context/NotificationContext";
 import { removeWhitespaces } from '@/utils';
 import { API_URL } from "@/utils";
 
-export default function AddFollowersListScreen({ user }: User) {
+export default function AddFollowersListScreen({ user }: { user: User }) {
   const [mobileNumber, setMobileNumber] = useState('');
-  const [followersFound, setFollowersFound] = useState<User>({});
+  const [followersFound, setFollowersFound] = useState<User | null>(null);
   const [selectedCountry, setSelectedCountry] = useState<ICountry | null | undefined>(null);
   const [followSuccess, setFollowSuccess] = useState<boolean>(false);
   const { userFound } = useNotification();
@@ -50,8 +50,13 @@ export default function AddFollowersListScreen({ user }: User) {
   }
 
   const onFollow = async () => {
+    if (!followersFound) {
+      Alert.alert('Error', 'No user found to follow');
+      return;
+    }
+
     try {
-      const result = await fetch(`${API_URL}/users/${userFound.id}/${followersFound.id}`, {
+      const result = await fetch(`${API_URL}/users/${user.id}/${followersFound.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
