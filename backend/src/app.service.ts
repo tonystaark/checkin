@@ -84,8 +84,8 @@ export class TasksService {
         const data = {
           userId: user.id
         }
-        const title = `${user.firstName} notifying followers`
-        const message = `Hello I am doing fine`
+        const title = `Hi, ${user.firstName} please tap here`
+        const message = `Tell your followers that you are doing fine`
         await this.pushService.sendPushNotification(user.pushToken, title, message, data)
         await this.usersService.updateLastNotifiedAt(user.id, now);
       })
@@ -104,17 +104,21 @@ export class NotifyFollowersService {
   ) { }
 
   async notify(userId: string) {
-    const user = await this.usersService.getSingleUserById(userId)
+    console.log('notify followersss')
+    const mockeduserId = '6860ba0ec8ff70853b4d1bd9'
+    const user = await this.usersService.getSingleUserById(mockeduserId)
     const userFollowersWithObjectIds = user.followers
     const followersDetailsList = await Promise.all(userFollowersWithObjectIds!.map((id) => this.usersService.getSingleUserByObjectId(id)))
-    const title = `${user.firstName} notifying followers`
-    const message = `${user.firstName} notifying followers`
     const data = {
       userId: user.id
     }
     await Promise.all(
-      followersDetailsList!.map((follower) => this.pushService.sendPushNotification(follower.pushToken, title, message, data))
-    );
+      followersDetailsList!.map((follower) => {
+        const title = `Hi ${follower.firstName}, ${user.firstName} saying hi back`
+        const message = `${user.firstName} is doing fine`
+
+        this.pushService.sendPushNotification(follower.pushToken, title, message, data)
+      }))
     this.logger.debug('⏰ User notifying Followers');
   }
 }
