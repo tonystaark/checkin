@@ -53,7 +53,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     const [userFound, setUserFound] = useState({ id: '', firstName: '', lastName: '', countryCode: '', mobileNumber: '', pushToken: '' })
 
     const handleNotificationTap = async (userId: string) => {
-        console.log('userUd afterr handle notifcation top', userId)
+        console.log('userUd afterr handle notifcation top', userId, API_URL)
         try {
             const result = await fetch(`${API_URL}/notify-followers/${userId}`, {
                 method: 'POST'

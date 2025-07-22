@@ -10,6 +10,7 @@ import PhoneInput, {
 } from 'react-native-international-phone-number';
 import { API_URL } from "@/utils";
 import { User } from "@/types";
+import MotionSensor from "@/modules/accelerometer";
 
 export default function HomeScreen() {
   const { notification, expoPushToken, error, isExistingUser, userFound } = useNotification();
@@ -120,6 +121,7 @@ export default function HomeScreen() {
           <>
             <ThemedText type="subtitle">Latest notification:</ThemedText>
             <ThemedText>{notification?.request.content.title}</ThemedText>
+            <MotionSensor />
             <ThemedText>
               Hi {loggedInUser?.firstName || userFound?.firstName}
             </ThemedText>
