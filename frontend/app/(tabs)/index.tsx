@@ -85,7 +85,6 @@ export default function HomeScreen() {
       return;
     }
     registerUser()
-    // checkIsExistingUser()
 
   };
 
@@ -121,11 +120,11 @@ export default function HomeScreen() {
           <>
             <ThemedText type="subtitle">Latest notification:</ThemedText>
             <ThemedText>{notification?.request.content.title}</ThemedText>
-            <MotionSensor />
+            {isExistingUser && <MotionSensor user={userFound} />}
             <ThemedText>
               Hi {loggedInUser?.firstName || userFound?.firstName}
             </ThemedText>
-            <AddFollowersListScreen user={loggedInUser} />
+            <AddFollowersListScreen user={userFound} />
           </> :
           <>
             {loggedInUser ? <ThemedText type="subtitle">Registered!</ThemedText> : <ThemedText type="subtitle">Please register yourself</ThemedText>}

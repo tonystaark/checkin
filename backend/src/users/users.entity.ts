@@ -13,6 +13,7 @@ export const UserSchema = new Schema({
     notificationCron: { type: String, default: '0 0 */3 * * *', required: true },
     lastNotifiedAt: { type: Date },
     timezone: { type: String },
+    lastMovement: { type: Date },
 }, {
     timestamps: true // This automatically adds createdAt and updatedAt fields
 });
@@ -35,6 +36,7 @@ export interface User extends Document {
     // Timestamps
     createdAt: Date,
     updatedAt: Date,
+    lastMovement: Date,
 }
 
 export interface Follower { firstName: string, mobileNumber: string, countryCode: string }

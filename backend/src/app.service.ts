@@ -60,7 +60,7 @@ export class TasksService {
   ) { }
 
   // Runs every 30 seconds
-  @Cron('*/10 * * * * *') // You can use CronExpression.EVERY_30_SECONDS too
+  @Cron('*/20 * * * * *') // You can use CronExpression.EVERY_30_SECONDS too
   async handleCron() {
     this.logger.debug('⏰ Cron polling job running every 5 minutes...');
     // Your custom logic here
