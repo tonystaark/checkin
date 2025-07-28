@@ -127,6 +127,20 @@ export class UsersService {
     }
   }
 
+  async findUsersToFireNotificationBasedOnLastMovement(): Promise<User[]> {
+    try {
+      const timeLapsed = new Date(Date.now() - 1 * 60 * 60 * 1000) // 1 hour ago
+      // const timeLapsed = new Date(Date.now() - 1 * 60 * 1000);       // 1 minute ago
+
+      return await this.userModel.find({
+        followers: { $exists: true, $not: { $size: 0 } },
+        lastMovement: { $exists: true, $lte: timeLapsed },
+      }).exec();
+    } catch (error) {
+      throw new NotFoundException('Could not find users.');
+    }
+  }
+
   async updateLastNotifiedAt(userId: string, currentDate: Date) {
     const user = await this.findUser(userId)
     user.lastNotifiedAt = currentDate

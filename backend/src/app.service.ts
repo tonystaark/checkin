@@ -60,40 +60,68 @@ export class TasksService {
   ) { }
 
   // Runs every 30 seconds
-  @Cron('*/20 * * * * *') // You can use CronExpression.EVERY_30_SECONDS too
-  async handleCron() {
-    this.logger.debug('⏰ Cron polling job running every 5 minutes...');
-    // Your custom logic here
-    const usersToFireNotifcations = await this.usersService.findUsersToFireNotification();
-    const now = new Date();
+  //   @Cron('*/20 * * * * *') // You can use CronExpression.EVERY_30_SECONDS too
+  //   async handleCron() {
+  //     this.logger.debug('⏰ Cron polling job running every 5 minutes...');
+  //     const usersToFireNotifcations = await this.usersService.findUsersToFireNotification();
+  //     const now = new Date();
 
-    const checkUsersReadyToFire = usersToFireNotifcations.filter(user => {
-      try {
-        const interval = CronExpressionParser.parse(user.notificationCron, {
-          currentDate: user.lastNotifiedAt || new Date(0),
-        });
-        const next = interval.next().toDate();
-        return isAfter(now, next);
-      } catch (err) {
-        this.logger.warn(`Invalid cron for user ${user.id}: ${user.notificationCron}`);
-        return false;
-      }
-    });
+  //     const checkUsersReadyToFire = usersToFireNotifcations.filter(user => {
+  //       try {
+  //         const interval = CronExpressionParser.parse(user.notificationCron, {
+  //           currentDate: user.lastNotifiedAt || new Date(0),
+  //         });
+  //         const next = interval.next().toDate();
+  //         return isAfter(now, next);
+  //       } catch (err) {
+  //         this.logger.warn(`Invalid cron for user ${user.id}: ${user.notificationCron}`);
+  //         return false;
+  //       }
+  //     });
+  //     await Promise.all(
+  //       checkUsersReadyToFire.map(async (user) => {
+  //         const data = {
+  //           userId: user.id
+  //         }
+  //         const title = `Hi, ${user.firstName} please tap here`
+  //         const message = `Tell your followers that you are doing fine`
+  //         await this.pushService.sendPushNotification(user.pushToken, title, message, data)
+  //         await this.usersService.updateLastNotifiedAt(user.id, now);
+  //       })
+  //     );
+
+  //   }
+  // }
+
+  @Cron('0 */30 * * * *') // You can use CronExpression.EVERY_30_SECONDS too
+  async handleCronToFireNotificationBasedOnLastMovement() {
+    this.logger.debug('⏰ Cron polling job running every 30 minutes...');
+    const usersToFireNotifcations = await this.usersService.findUsersToFireNotificationBasedOnLastMovement();
+    this.logger.debug('Prepare sending Push Notification to followers', usersToFireNotifcations);
+
     await Promise.all(
-      checkUsersReadyToFire.map(async (user) => {
-        const data = {
-          userId: user.id
-        }
-        const title = `Hi, ${user.firstName} please tap here`
-        const message = `Tell your followers that you are doing fine`
-        await this.pushService.sendPushNotification(user.pushToken, title, message, data)
-        await this.usersService.updateLastNotifiedAt(user.id, now);
+      usersToFireNotifcations.map(async (user) => {
+        const userFollowersWithObjectIds = user.followers
+
+        await Promise.all(
+          userFollowersWithObjectIds!.map(async (followerObjectId) => {
+            const follower = await this.usersService.getSingleUserByObjectId(followerObjectId)
+            const title = `Hi ${follower.firstName}, ${user.firstName} has been idle for the last 1 hour`
+            const message = `Last movement detected was ${user.lastMovement}`
+            const data = {
+              userId: user.id
+            }
+            this.logger.debug('Sending Push Notification to follower', follower.id);
+
+            this.pushService.sendPushNotification(follower.pushToken, title, message, data)
+            await this.usersService.updateLastNotifiedAt(follower.id, new Date());
+          }))
+
       })
     );
 
   }
 }
-
 
 @Injectable()
 export class NotifyFollowersService {
