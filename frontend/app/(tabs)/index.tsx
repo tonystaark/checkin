@@ -120,11 +120,13 @@ export default function HomeScreen() {
           <>
             <ThemedText type="subtitle">Latest notification:</ThemedText>
             <ThemedText>{notification?.request.content.title}</ThemedText>
-            {isExistingUser && <MotionSensor user={userFound} />}
+            {console.log('userFound', userFound)}
+            {console.log('loggedInUser', loggedInUser)}
+            <MotionSensor userId={userFound.id || loggedInUser!.id} />
             <ThemedText>
               Hi {loggedInUser?.firstName || userFound?.firstName}
             </ThemedText>
-            <AddFollowersListScreen user={userFound} />
+            <AddFollowersListScreen user={userFound.id && userFound || loggedInUser!.id && loggedInUser} />
           </> :
           <>
             {loggedInUser ? <ThemedText type="subtitle">Registered!</ThemedText> : <ThemedText type="subtitle">Please register yourself</ThemedText>}

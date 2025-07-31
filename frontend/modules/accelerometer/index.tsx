@@ -5,15 +5,15 @@ import { useState, useEffect, useRef } from 'react';
 import { View } from 'react-native';
 import { User } from "@/types/index"
 
-export default function MotionSensor({ user }: { user: User }) {
+export default function MotionSensor({ userId }: { userId: string }) {
     const [data, setData] = useState({ x: 0, y: 0, z: 0 });
     const [moved, setMoved] = useState(false);
     const lastSentTime = useRef<number>(0);
     // prevent spamming server
     const sendMovementToServer = async (currentDateTime: number) => {
         try {
-            console.log('userrr', user)
-            const response = await fetch(`${API_URL}/movements/${user.id}`, {
+            console.log('userrr', userId)
+            const response = await fetch(`${API_URL}/movements/${userId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
