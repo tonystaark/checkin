@@ -21,12 +21,7 @@
       }
     },
     "preview": {
-      "autoIncrement": true,
-      "android": {
-        "buildType": "apk"
-      },
-      "distribution": "internal",
-      "environment": "preview"
+      "distribution": "internal"
     },
     "production": {
       "autoIncrement": true,
