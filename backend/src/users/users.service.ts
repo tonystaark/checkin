@@ -129,7 +129,7 @@ export class UsersService {
 
   async findUsersToFireNotificationBasedOnLastMovement(): Promise<User[]> {
     try {
-      const timeLapsed = new Date(Date.now() - 1 * 60 * 60 * 1000) // 1 hour ago
+      const timeLapsed = new Date(Date.now() - 3 * 60 * 60 * 1000) // 1 hour ago
       // const timeLapsed = new Date(Date.now() - 1 * 60 * 1000);       // 1 minute ago
 
       return await this.userModel.find({

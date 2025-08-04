@@ -7,5 +7,6 @@ import { UsersModule } from 'src/users/users.module';
   imports: [UsersModule],
   controllers: [NotificationController, PushNotificationController, NotifyFollowersController],
   providers: [NotificationService, TasksService, PushNotificationService, NotifyFollowersService, AcknowledgementFromFirstUserService],
+  exports: [NotifyFollowersService]
 })
 export class NotificationModule { }

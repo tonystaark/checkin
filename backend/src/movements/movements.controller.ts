@@ -3,7 +3,9 @@ import { MovementsService } from "./movements.service";
 
 @Controller(`movements/:userId`)
 export class MovementsController {
-  constructor(private readonly movementsService: MovementsService) { }
+  constructor(
+    private readonly movementsService: MovementsService,
+  ) { }
 
   @Put()
   async updateMovements(

@@ -132,7 +132,7 @@ export class NotifyFollowersService {
   ) { }
 
   async notify(userId: string) {
-    const user = await this.usersService.getSingleUserById(userId)
+    const user = await this.usersService.findUser(userId)
     const userFollowersWithObjectIds = user.followers
     const followersDetailsList = await Promise.all(userFollowersWithObjectIds!.map((id) => this.usersService.getSingleUserByObjectId(id)))
     const data = {
@@ -140,11 +140,12 @@ export class NotifyFollowersService {
     }
     await Promise.all(
       followersDetailsList!.map((follower) => {
-        const title = `Hi ${follower.firstName}, ${user.firstName} saying hi back`
+        const title = `Hi ${follower.firstName}, ${user.firstName} saying hi`
         const message = `${user.firstName} is doing fine`
 
         this.pushService.sendPushNotification(follower.pushToken, title, message, data)
       }))
+    await user.save();
     this.logger.debug('⏰ User notifying Followers');
   }
 }
