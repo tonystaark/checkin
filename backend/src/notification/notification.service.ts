@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Expo, ExpoPushMessage, ExpoPushTicket } from 'expo-server-sdk';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { UsersService } from './users/users.service';
+import { UsersService } from '../users/users.service';
 import { CronExpressionParser } from 'cron-parser';
 import { isAfter } from 'date-fns';
 
 @Injectable()
-export class AppService {
+export class NotificationService {
   getHello(): string {
     return 'Hello World!';
   }

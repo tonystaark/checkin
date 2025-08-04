@@ -1,9 +1,9 @@
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
-import { AppService, PushNotificationService, NotifyFollowersService, AcknowledgementFromFirstUserService } from './app.service';
+import { NotificationService, PushNotificationService, NotifyFollowersService, AcknowledgementFromFirstUserService } from './notification.service';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) { }
+export class NotificationController {
+  constructor(private readonly appService: NotificationService) { }
 
   @Get()
   getHello(): string {

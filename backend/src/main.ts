@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './appModule';
 import { ResponseInterceptor } from './common/interceptors/response';
 
 async function bootstrap() {
