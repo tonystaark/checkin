@@ -93,9 +93,9 @@ export class TasksService {
   //   }
   // }
 
-  @Cron('0 */30 * * * *') // You can use CronExpression.EVERY_30_SECONDS too
+  @Cron('0 0 */6 * * *') //EVERY_6_HOURS
   async handleCronToFireNotificationBasedOnLastMovement() {
-    this.logger.debug('⏰ Cron polling job running every 30 minutes...');
+    this.logger.debug('⏰ Cron polling job running every 6 hours...');
     const usersToFireNotifcations = await this.usersService.findUsersToFireNotificationBasedOnLastMovement();
     this.logger.debug('Prepare sending Push Notification to followers', usersToFireNotifcations);
 
@@ -106,7 +106,7 @@ export class TasksService {
         await Promise.all(
           userFollowersWithObjectIds!.map(async (followerObjectId) => {
             const follower = await this.usersService.getSingleUserByObjectId(followerObjectId)
-            const title = `Hi ${follower.firstName}, ${user.firstName} has been idle for the last 1 hour`
+            const title = `Hi ${follower.firstName}, ${user.firstName} has been idle for the last 24 hours`
             const message = `Last movement detected was ${user.lastMovement}`
             const data = {
               userId: user.id
