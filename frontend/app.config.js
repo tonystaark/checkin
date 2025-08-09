@@ -1,6 +1,8 @@
+const IS_DEV = process.env.APP_VARIANT === 'development';
+
 export default {
   "expo": {
-    "name": "checkin",
+    "name": IS_DEV ? "checkin-dev" : "checkin",
     "slug": "checkin",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,7 +12,7 @@ export default {
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.tnkh.checkin",
+      "bundleIdentifier": IS_DEV ? "com.tnkh.checkin.dev" : "com.tnkh.checkin",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -20,7 +22,7 @@ export default {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.tnkh.checkin",
+      "package": IS_DEV ? "com.tnkh.checkin.dev" : "com.tnkh.checkin",
       "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? "google-services.json",
     },
     "web": {
