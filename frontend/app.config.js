@@ -23,7 +23,7 @@ export default {
         "backgroundColor": "#ffffff"
       },
       "package": IS_DEV ? "com.tnkh.checkin.dev" : "com.tnkh.checkin",
-      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON ?? "google-services.json",
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON,
     },
     "web": {
       "bundler": "metro",
